@@ -1,8 +1,7 @@
 package edu.cn.hitsz_ids.agents.server.core.bridge.bridge;
 
-import edu.cn.hitsz_ids.agents.utils.BridgeType;
-import edu.cn.hitsz_ids.agents.utils.IBridgeType;
-import edu.cn.hitsz_ids.agents.utils.ServerException;
+import edu.cn.hitsz_ids.agents.core.bridge.IBridgeType;
+import edu.cn.hitsz_ids.agents.core.exception.ServerException;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;

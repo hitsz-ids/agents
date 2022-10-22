@@ -4,8 +4,6 @@ import com.google.protobuf.ByteString;
 import edu.cn.hitsz_ids.agents.client.obsever.response.ReadCase;
 import edu.cn.hitsz_ids.agents.grpc.Request;
 import edu.cn.hitsz_ids.agents.grpc.Response;
-import io.grpc.netty.shaded.io.netty.util.internal.StringUtil;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 

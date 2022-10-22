@@ -17,6 +17,9 @@ public class OptionsUtils {
                     case OP_WRITE:
                         openOptions[i] = StandardOpenOption.WRITE;
                         break;
+                    case OP_APPEND:
+                        openOptions[i] = StandardOpenOption.APPEND;
+                        break;
                 }
             }
         } else {

@@ -8,11 +8,11 @@
         <version>0.0.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>utils</artifactId>
-    <groupId>edu.cn.hitsz_ids.agents.utils</groupId>
+    <artifactId>core</artifactId>
+    <groupId>edu.cn.hitsz_ids.agents.core</groupId>
     <version>0.0.1</version>
     <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
     </properties>
 </project>

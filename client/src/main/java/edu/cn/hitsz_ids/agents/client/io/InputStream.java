@@ -1,9 +1,9 @@
 package edu.cn.hitsz_ids.agents.client.io;
 
 import edu.cn.hitsz_ids.agents.client.obsever.observer.Reader;
+import edu.cn.hitsz_ids.agents.core.bridge.IOType;
 import edu.cn.hitsz_ids.agents.grpc.OpenOption;
-import edu.cn.hitsz_ids.agents.utils.BridgeType;
-import edu.cn.hitsz_ids.agents.utils.IOType;
+import edu.cn.hitsz_ids.agents.core.BridgeType;
 import io.grpc.ManagedChannel;
 import io.grpc.Metadata;
 import io.grpc.stub.MetadataUtils;

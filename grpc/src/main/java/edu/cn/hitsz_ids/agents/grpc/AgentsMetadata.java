@@ -23,7 +23,7 @@ public class AgentsMetadata {
         return getString(metadata, BRIDGE);
     }
     public static String getIdentity(Metadata metadata) {
-        return getString(metadata, BRIDGE);
+        return getString(metadata, IDENTITY);
     }
     public static String getType(Metadata metadata) {
         return getString(metadata, TYPE);

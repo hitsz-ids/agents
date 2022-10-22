@@ -25,5 +25,4 @@
     <mappers>
         <package name="edu.cn.hitsz_ids.agents.db.mapper"/>
     </mappers>
-
 </configuration>

@@ -7,8 +7,8 @@
     <groupId>edu.cn.hitsz_ids.agents.grpc</groupId>
     <version>1.0.0</version>
     <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <grpc.version>1.45.0</grpc.version>
         <grpc.protoc.version>3.19.2</grpc.protoc.version>
         <grpc.protobuf.maven.plugin.version>4.0.0</grpc.protobuf.maven.plugin.version>

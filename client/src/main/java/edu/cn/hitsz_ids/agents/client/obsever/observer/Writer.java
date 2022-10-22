@@ -3,7 +3,6 @@ package edu.cn.hitsz_ids.agents.client.obsever.observer;
 import com.google.protobuf.ByteString;
 import edu.cn.hitsz_ids.agents.client.obsever.response.CreateCase;
 import edu.cn.hitsz_ids.agents.client.obsever.response.WriteCase;
-import edu.cn.hitsz_ids.agents.grpc.OpenOption;
 import edu.cn.hitsz_ids.agents.grpc.Request;
 import edu.cn.hitsz_ids.agents.grpc.Response;
 
@@ -28,21 +27,22 @@ public class Writer extends Observer {
     }
 
     public void write(byte[] bytes, int off, int length) throws IOException {
+        isException();
         caseManager.await(new WriteCase(
                 Request.Write.newBuilder()
                         .setBytes(ByteString.copyFrom(bytes, off, length))
                         .setLen(length)
                         .build()));
     }
-
-    public void create(String name,
+    public String create(String name,
                        String directory,
-                       String identity,
-                       OpenOption... options) throws IOException {
-        caseManager.await(new CreateCase(Request.Create.newBuilder()
-                .setName(name)
-                .setIdentity(identity)
-                .setDirectory(directory)
-                .build()));
+                       String identity) throws IOException {
+        isException();
+        Request.Create.Builder builder = Request.Create.newBuilder();
+        builder.setName(name);
+        builder.setDirectory(directory);
+        builder.setIdentity(identity);
+        Response.Create create = caseManager.await(new CreateCase(builder.build()));
+        return create.getUri();
     }
 }

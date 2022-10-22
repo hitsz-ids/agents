@@ -24,7 +24,7 @@ public class DruidHelper implements DataSourceFactory {
         dataSource.setUrl(properties.getProperty("url"));
         dataSource.setUsername(properties.getProperty("u"));
         dataSource.setPassword(properties.getProperty("p"));
-        dataSource.setQueryTimeout(30);
+        dataSource.setQueryTimeout(10);
         try {
             dataSource.init();
         } catch (SQLException e) {

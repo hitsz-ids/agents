@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.*;
 
 public class CaseManager {
-    private Observer observer;
+    private final Observer observer;
     private final List<CaseMessage> list = new ArrayList<>();
 
     public CaseManager(Observer observer) {
@@ -21,11 +21,6 @@ public class CaseManager {
             return t.await(observer, message.getCaseId());
         } catch (IOException e) {
             observer.error(e);
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException ex) {
-                throw new RuntimeException(ex);
-            }
             throw e;
         }
     }
@@ -63,6 +58,5 @@ public class CaseManager {
     public void destroy() {
         singleAll();
         list.clear();
-        observer = null;
     }
 }

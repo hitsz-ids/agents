@@ -1,7 +1,3 @@
-# 注：.key 可以看作私钥，.pem 可以看作公钥
-
-# genrsa 命令生成一个 2048 bit 的私钥，输出到 ca.key 文件中
-# req 命令通过 ca.key 生成一个自签名证书，输出到 pem 文件中
 mkdir output
 cd output
 mkdir root
@@ -20,7 +16,6 @@ org.hitsz_ids
 agents
 chuanlijian@gmail.com
 
-
 EOF
 # 客户端公私钥
 cd ..
@@ -35,7 +30,6 @@ org.hitsz_ids
 org.hitsz_ids
 agents
 chuanlijian@gmail.com
-
 
 EOF
 openssl x509 -req -sha256 -CA ../root/ca.pem -CAkey ../root/ca.key -CAcreateserial -days 3650 -in client.csr -out client.pem

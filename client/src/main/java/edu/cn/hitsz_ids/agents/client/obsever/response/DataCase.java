@@ -31,6 +31,7 @@ public abstract class DataCase<P, R> {
                     throw new IOException("请求超时");
                 }
             }
+            observer.isException();
             return data;
         } catch (InterruptedException e) {
             throw new IOException("线程异常中断");

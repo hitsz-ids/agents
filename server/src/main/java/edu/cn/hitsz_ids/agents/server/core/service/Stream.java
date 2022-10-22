@@ -1,17 +1,13 @@
 package edu.cn.hitsz_ids.agents.server.core.service;
 
+import edu.cn.hitsz_ids.agents.core.exception.ClientException;
+import edu.cn.hitsz_ids.agents.core.exception.ExceptionUtils;
+import edu.cn.hitsz_ids.agents.core.exception.ServerException;
 import edu.cn.hitsz_ids.agents.db.mapper.AgentsFileHandler;
 import edu.cn.hitsz_ids.agents.db.pojo.returns.SearchPathReturns;
-import edu.cn.hitsz_ids.agents.grpc.AgentsMetadata;
 import edu.cn.hitsz_ids.agents.grpc.Exception;
-import edu.cn.hitsz_ids.agents.grpc.Request;
-import edu.cn.hitsz_ids.agents.grpc.Response;
+import edu.cn.hitsz_ids.agents.grpc.*;
 import edu.cn.hitsz_ids.agents.server.core.bridge.bridge.Bridge;
-import edu.cn.hitsz_ids.agents.server.core.file.AgentsFile;
-import edu.cn.hitsz_ids.agents.server.core.utils.OpenOptionUtils;
-import edu.cn.hitsz_ids.agents.utils.ClientException;
-import edu.cn.hitsz_ids.agents.utils.ExceptionUtils;
-import edu.cn.hitsz_ids.agents.utils.ServerException;
 import io.grpc.Metadata;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
@@ -25,9 +21,16 @@ abstract class Stream implements StreamObserver<Request> {
     private final StreamObserver<Response> pusher;
     private boolean completed;
     private final Object completeLock = new Object();
+    protected final String scheme;
+    protected final String identity;
+    private boolean closed;
+    private boolean opened;
+    protected final Object lock = new Object();
+    protected Long primaryKey;
+    protected long size;
 
-    private final String scheme;
-    private final String identity;
+    protected long newPosition;
+    protected OpenOption option;
 
     public Stream(StreamObserver<Response> pusher, Bridge<?> bridge) {
         this.pusher = pusher;
@@ -43,20 +46,15 @@ abstract class Stream implements StreamObserver<Request> {
         try {
             Response.Builder response;
             switch (request.getDataCase()) {
-                case OPEN:
-                    response = open(request.getOpen());
-                    break;
-                case CLOSE:
-                    response = close();
-                    break;
-                case EXCEPTION:
+                case OPEN -> response = open(request.getOpen());
+                case CLOSE -> response = close();
+                case POSITION -> response = position(request.getPosition());
+                case EXCEPTION -> {
                     printStackTrace(request.getException());
                     return;
-                case DATA_NOT_SET:
-                    throw new IOException("接收的数据类型不正确");
-                default:
-                    response = request(request);
-                    break;
+                }
+                case DATA_NOT_SET -> throw new IOException("接收的数据类型不正确");
+                default -> response = request(request);
             }
             if (response != null) {
                 response.setId(request.getId());
@@ -67,25 +65,59 @@ abstract class Stream implements StreamObserver<Request> {
         }
     }
 
-    protected Response.Builder open(Request.Open open) throws IOException {
-        try (AgentsFileHandler handler = new AgentsFileHandler()) {
-            SearchPathReturns searchPathReturns = handler.searchPath(identity);
-            if (Objects.equals(searchPathReturns.getBridge(), scheme)) {
-                throw new ServerException("当前文件的存储位置不匹配");
+    protected Response.Builder position(Request.Position position) throws IOException {
+        synchronized (lock) {
+            if (option == OpenOption.OP_APPEND) {
+                throw new IOException("OP_APPEND追加模式下，不能移动文件指针的位置");
             }
-            AgentsFile file = bridge.open(searchPathReturns.getName(),
-                    searchPathReturns.getDirectory(),
-                    OpenOptionUtils.toArray(open.getOptionsList()));
-            return Response.newBuilder().setOpen(Response.Open.newBuilder()
-                    .setLength(file.getLength())
-                    .setName(file.getName())
-                    .build());
+            isOpened();
+            isClosed();
+            newPosition = bridge.position(position.getIndex());
+            return Response.newBuilder().setPosition(
+                    Response.Position.newBuilder().build()
+            );
+        }
+    }
+
+    protected Response.Builder open(Request.Open open) throws IOException {
+        synchronized (lock) {
+            if (opened) {
+                throw new IOException("文件已经打开");
+            }
+            isClosed();
+            try (AgentsFileHandler handler = new AgentsFileHandler()) {
+                SearchPathReturns searchPathReturns = handler.searchInfo(identity);
+                primaryKey = searchPathReturns.getId();
+                if (!Objects.equals(searchPathReturns.getBridge(), scheme)) {
+                    throw new ServerException("当前文件的存储位置不匹配");
+                }
+                option = open.getOption();
+                AgentsFile.Builder file = bridge.open(
+                        identity,
+                        searchPathReturns.getName(),
+                        searchPathReturns.getDirectory(),
+                        option);
+                size = file.getSize();
+                opened = true;
+                return Response.newBuilder().setOpen(Response.Open.newBuilder()
+                        .setFile(file)
+                        .build());
+            }
         }
     }
 
     protected Response.Builder close() throws IOException {
-        bridge.close();
-        return Response.newBuilder().setClose(Response.Close.newBuilder().build());
+        synchronized (lock) {
+            if (!opened) {
+                throw new IOException("文件未打开");
+            }
+            if (closed) {
+                throw new IOException("文件已关打开");
+            }
+            bridge.close();
+            closed = true;
+            return Response.newBuilder().setClose(Response.Close.newBuilder().build());
+        }
     }
 
 
@@ -100,9 +132,8 @@ abstract class Stream implements StreamObserver<Request> {
     }
 
     private void printStackTrace(Exception exception) {
-        Throwable throwable = ExceptionUtils.toThrowable(exception.getStackTrace().toByteArray(),
-                exception.getMessage().getBytes(StandardCharsets.UTF_8));
-        new ClientException(throwable).printStackTrace();
+        StackTraceElement[] stackTrace = ExceptionUtils.stackTrace(exception.getStackTrace().toByteArray());
+        new ClientException(stackTrace, exception.getMessage()).printStackTrace();
         completed(true, false);
     }
 
@@ -134,13 +165,41 @@ abstract class Stream implements StreamObserver<Request> {
                     pusher.onCompleted();
                 }
                 if (bridge != null) {
-                    bridge.close();
+                    bridge.completed(error);
                 }
                 destroy(error);
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
                 completed = true;
+            }
+        }
+    }
+
+    public String getUri() {
+        return scheme + "://" + identity;
+    }
+
+    public void isOpened() throws IOException {
+        if (!opened) {
+            throw new IOException("文件未打开");
+        }
+    }
+
+    public void isClosed() throws IOException {
+        if (closed) {
+            throw new IOException("文件已关闭");
+        }
+    }
+
+    protected void updateSize(int len) {
+        if (option == OpenOption.OP_APPEND) {
+            size += len;
+        } else {
+            long remainder = size - newPosition;
+            long increased = len - remainder;
+            if (increased > 0) {
+                size += increased;
             }
         }
     }

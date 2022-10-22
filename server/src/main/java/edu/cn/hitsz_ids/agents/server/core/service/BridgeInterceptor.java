@@ -3,15 +3,15 @@ package edu.cn.hitsz_ids.agents.server.core.service;
 import edu.cn.hitsz_ids.agents.grpc.AgentsMetadata;
 import edu.cn.hitsz_ids.agents.server.core.bridge.bridge.Bridge;
 import edu.cn.hitsz_ids.agents.server.core.bridge.bridge.BridgeFactory;
-import edu.cn.hitsz_ids.agents.utils.ServerException;
+import edu.cn.hitsz_ids.agents.core.exception.ServerException;
 import io.grpc.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Objects;
 
-import static edu.cn.hitsz_ids.agents.utils.IOType.CREATE;
-import static edu.cn.hitsz_ids.agents.utils.IOType.SEARCH;
+import static edu.cn.hitsz_ids.agents.core.bridge.IOType.CREATE;
+import static edu.cn.hitsz_ids.agents.core.bridge.IOType.SEARCH;
 
 class BridgeInterceptor implements ServerInterceptor {
     @Override
@@ -19,7 +19,7 @@ class BridgeInterceptor implements ServerInterceptor {
                                                                  Metadata metadata,
                                                                  ServerCallHandler<ReqT, RespT> serverCallHandler) {
         String type = AgentsMetadata.getType(metadata);
-        boolean exception = true;
+        boolean goon = false;
         String name = null;
         String identity = null;
         if (Objects.equals(type, SEARCH)) {
@@ -29,7 +29,7 @@ class BridgeInterceptor implements ServerInterceptor {
                 URI uri = new URI(path);
                 name = uri.getScheme();
                 identity = uri.getHost();
-                exception = false;
+                goon = true;
             } catch (URISyntaxException e) {
                 e.printStackTrace();
             }
@@ -41,10 +41,13 @@ class BridgeInterceptor implements ServerInterceptor {
         Bridge<?> bridge = null;
         try {
             bridge = BridgeFactory.getInstance().create(name);
+            if (!Objects.isNull(bridge)) {
+                goon = true;
+            }
         } catch (ServerException e) {
             e.printStackTrace();
         }
-        if (exception) {
+        if (!goon) {
             serverCall.close(Status.NOT_FOUND.withDescription("未找到对应的执行类型"), metadata);
             return new ServerCall.Listener<ReqT>() {
             };

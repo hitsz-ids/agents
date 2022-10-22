@@ -1,33 +1,32 @@
-package edu.cn.hitsz_ids.agents.utils;
+package edu.cn.hitsz_ids.agents.core.exception;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.nio.charset.StandardCharsets;
 
 public class ExceptionUtils {
-    public static Throwable toThrowable(byte[] bytes, byte[] errorMsg) {
-        Object obj;
+    public static StackTraceElement[] stackTrace(byte[] bytes) {
+        StackTraceElement[] obj;
         if (bytes == null) {
             obj = new StackTraceElement[0];
         } else {
             try (ByteArrayInputStream bis = new ByteArrayInputStream(bytes)) {
                 try (ObjectInputStream ois = new ObjectInputStream(bis)) {
-                    obj = ois.readObject();
+                    obj = (StackTraceElement[]) ois.readObject();
                 }
             } catch (Exception ex) {
                 obj = new StackTraceElement[0];
             }
         }
-        Throwable exception;
-        if (errorMsg == null) {
-            exception = new Throwable("NULL");
-        } else {
-            exception = new Throwable(new String(errorMsg, StandardCharsets.UTF_8));
-        }
-        exception.setStackTrace((StackTraceElement[]) obj);
-        return exception;
+//        Throwable exception;
+//        if (errorMsg == null) {
+//            exception = new Throwable("NULL");
+//        } else {
+//            exception = new Throwable(new String(errorMsg, StandardCharsets.UTF_8));
+//        }
+//        exception.setStackTrace((StackTraceElement[]) obj);
+        return obj;
     }
 
     public static byte[] toBytes(Throwable throwable) {

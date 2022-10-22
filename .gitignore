@@ -8,4 +8,4 @@ client/target/
 grpc/target/
 db/target/
 server/target/
-utils/target/
+core/target/

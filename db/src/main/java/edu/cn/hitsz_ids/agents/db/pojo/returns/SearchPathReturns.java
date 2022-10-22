@@ -6,8 +6,9 @@ import lombok.Data;
 @Data
 @Builder
 public class SearchPathReturns {
-    private String path;
+    private Long id;
     private String name;
     private String directory;
     private String bridge;
+    private long size;
 }

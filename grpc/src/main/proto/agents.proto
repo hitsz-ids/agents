@@ -21,6 +21,7 @@ enum Cmd {
 enum OpenOption {
   OP_READ = 0;
   OP_WRITE = 1;
+  OP_APPEND = 2;
 }
 
 message Exception {
@@ -31,7 +32,7 @@ message Exception {
 message Request {
   string id = 6;
   message Open {
-    repeated OpenOption options = 2;
+    OpenOption option = 1;
   }
   message Read {
     int32 len = 1;
@@ -45,24 +46,26 @@ message Request {
     string directory = 1;
     string name = 2;
     string identity = 3;
-    repeated OpenOption options = 4;
   }
   message Close {}
+  message Position {
+    int64 index = 1;
+  }
   oneof Data {
     Open open = 1;
     Read read = 2;
     Write write = 3;
     Create create = 4;
     Close close = 5;
-    Exception exception = 7;
+    Position position = 7;
+    Exception exception = 8;
   }
 }
 
 message Response {
   string id = 6;
   message Open {
-    string name = 1;
-    int64 length = 2;
+    AgentsFile file = 1;
   }
   message Read {
     int32 len = 1;
@@ -72,6 +75,10 @@ message Response {
     int32 length = 1;
   }
   message Create {
+    string uri = 1;
+  }
+  message Position {
+    int64 index = 1;
   }
   message Close {}
   oneof Data {
@@ -80,6 +87,38 @@ message Response {
     Write write = 3;
     Create create = 4;
     Close close = 5;
+    Position position = 8;
     Exception exception = 7;
   }
+}
+
+service HelpService {
+  rpc listFiles(ListRequest) returns (ListResponse) {}
+  rpc delete(DeleteRequest) returns (DeleteResponse) {}
+}
+
+message ListRequest {
+  string directory = 1;
+  string bridgeType = 2;
+}
+message AgentsFile {
+  int64 size = 1;
+  string name = 2;
+  string uri = 3;
+  string directory = 4;
+  string createdTime = 5;
+  string lastModified = 6;
+  string bridge = 7;
+  string path = 8;
+  bool isDirectory = 9;
+}
+message ListResponse {
+  repeated AgentsFile files = 1;
+}
+
+message DeleteRequest {
+  string uri = 1;
+}
+message DeleteResponse {
+  bool success = 1;
 }

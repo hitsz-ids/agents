@@ -1,19 +1,22 @@
 package edu.cn.hitsz_ids.agents.server.core.service;
 
+import com.google.rpc.Help;
 import edu.cn.hitsz_ids.agents.server.core.bridge.bridge.Bridge;
 import edu.cn.hitsz_ids.agents.server.core.bridge.bridge.BridgeFactory;
-import edu.cn.hitsz_ids.agents.utils.IBridgeType;
-import io.grpc.*;
+import edu.cn.hitsz_ids.agents.server.core.utils.Channel;
+import edu.cn.hitsz_ids.agents.core.bridge.IBridgeType;
+import io.grpc.Server;
+import io.grpc.ServerInterceptor;
+import io.grpc.ServerInterceptors;
+import io.grpc.ServerServiceDefinition;
 import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
 import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder;
 import io.grpc.netty.shaded.io.netty.handler.ssl.ClientAuth;
 import io.grpc.netty.shaded.io.netty.handler.ssl.SslContextBuilder;
 import io.grpc.netty.shaded.io.netty.handler.ssl.SslProvider;
 import lombok.extern.slf4j.Slf4j;
-import edu.cn.hitsz_ids.agents.server.core.utils.Channel;
 
 import javax.net.ssl.SSLException;
-import javax.xml.ws.Service;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -24,18 +27,22 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class AgentsService {
     private final int listenPort;
-    private ServerServiceDefinition definition;
+    private final List<ServerServiceDefinition> definitions = new ArrayList<>();
     private Server server;
     private final NettyServerBuilder builder;
-    private final StreamService service = new StreamService();
     private static final String CERT_CHAIN_FILE_PATH = "server.pem";
     private static final String TRUST_CERT_FILE_PATH = "ca.pem";
     private static final String PRIVATE_KEY_FILE_PATH = "server-pkcs8.key";
-
+    private void initService() {
+        StreamService service = new StreamService();
+        HelpService helpService = new HelpService();
+        definitions.add(ServerInterceptors.intercept(service, new BridgeInterceptor()));
+        definitions.add(ServerInterceptors.intercept(helpService, new BridgeInterceptor()));
+    }
     public AgentsService(int port) throws SSLException {
         this.listenPort = port;
+        initService();
         SslContextBuilder sslContextBuilder = getSslContextBuilder();
-        definition = ServerInterceptors.intercept(service, new BridgeInterceptor());
         builder = NettyServerBuilder
                 .forPort(listenPort)
                 .permitKeepAliveWithoutCalls(true)
@@ -51,11 +58,17 @@ public class AgentsService {
     }
 
     public void registerInterceptor(ServerInterceptor interceptor) {
-        definition = ServerInterceptors.intercept(service, interceptor);
+        int size = definitions.size();
+        ServerServiceDefinition definition;
+        for (int i = 0; i < size; i++) {
+            definition = definitions.get(i);
+            definition = ServerInterceptors.intercept(definition, interceptor);
+            definitions.add(i, definition);
+        }
     }
 
     public void start() throws IOException {
-        server = builder.addService(definition).build();
+        server = builder.addServices(definitions).build();
         server.start();
         log.info("服务已经启动，监听端口为{}", listenPort);
         Runtime.getRuntime().addShutdownHook(new Thread() {

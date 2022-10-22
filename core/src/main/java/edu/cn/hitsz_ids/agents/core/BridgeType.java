@@ -1,6 +1,6 @@
-package edu.cn.hitsz_ids.agents.utils;
+package edu.cn.hitsz_ids.agents.core;
 
-import java.util.Objects;
+import edu.cn.hitsz_ids.agents.core.bridge.IBridgeType;
 
 public enum BridgeType implements IBridgeType {
     DISK("DISK", "磁盘"),;

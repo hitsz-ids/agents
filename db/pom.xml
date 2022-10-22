@@ -12,8 +12,8 @@
     <groupId>edu.cn.hitsz_ids.agents.db</groupId>
     <version>0.0.1</version>
     <properties>
-        <maven.compiler.source>8</maven.compiler.source>
-        <maven.compiler.target>8</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
     </properties>
 
     <dependencies>

@@ -22,4 +22,8 @@ public class DbHandler<T extends BaseMapper<?>> implements AutoCloseable {
     public void commit() {
         dbSession.commit();
     }
+
+    public void rollback() {
+        dbSession.rollback();
+    }
 }

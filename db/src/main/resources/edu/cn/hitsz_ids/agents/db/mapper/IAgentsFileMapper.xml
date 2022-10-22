@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="edu.cn.hitsz_ids.agents.db.mapper.IAgentsFileMapper">
+    <update id="updateSizeById">
+        UPDATE `agents_file` SET `size` = #{size} WHERE `id`=#{id}
+    </update>
+    <select id="queryBridge" resultType="java.lang.String">
+        SELECT `bridge`
+        FROM `agents_file`
+        WHERE `identity` = #{identity}
+    </select>
+
+    <select id="queryPathInfo"
+            resultType="edu.cn.hitsz_ids.agents.db.pojo.returns.SearchPathReturns">
+        SELECT `id`, `name`, `directory`, `bridge`, `size`
+        FROM `agents_file`
+        WHERE `identity` = #{identity}
+    </select>
+
+    <select id="queryPathInfoByPath"
+            resultType="edu.cn.hitsz_ids.agents.db.pojo.returns.SearchPathReturns">
+        SELECT `identity`, `name`, `directory`, `bridge`, `size`
+        FROM `agents_file`
+        WHERE `path` = #{path}
+    </select>
+</mapper>

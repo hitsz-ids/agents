@@ -1,9 +1,9 @@
-package edu.cn.hitsz_ids.agents.utils;
+package edu.cn.hitsz_ids.agents.core.bridge;
 
 public interface IBridgeType {
-    public String getName();
+    String getName();
 
-    public String getMsg();
+    String getMsg();
 
     default String getScheme() {
         return getName() + "://";

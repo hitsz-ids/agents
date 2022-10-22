@@ -32,7 +32,7 @@ class InputStream extends Stream {
                 .setBytes(readLength != -1 ?
                         ByteString.copyFrom(bytes, 0, len)
                         : ByteString.EMPTY)
-                .setLen(len)
+                .setLen(readLength)
                 .build());
     }
 }
