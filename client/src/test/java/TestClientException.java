@@ -42,7 +42,17 @@ public class TestClientException {
 
     @Test
     public void listFiles() {
-        List<AgentsFile> list = Agents.listFiles("");
+        System.out.println("=================查询DISK存储下的的目录文件=================");
+        System.out.println("=================start=================");
+        List<AgentsFile> list = Agents.listFiles("", BridgeType.DISK);
         System.out.println(list);
+        System.out.println("=================end=================");
+
+        System.out.println("=================查询所有存储下的的目录文件=================");
+        System.out.println("=================start=================");
+        list = Agents.listFiles("");
+        System.out.println(list);
+        System.out.println("=================end=================");
+
     }
 }

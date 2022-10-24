@@ -1,5 +1,6 @@
 package edu.cn.hitsz_ids.agents.client.io;
 
+import edu.cn.hitsz_ids.agents.core.BridgeType;
 import edu.cn.hitsz_ids.agents.core.bridge.IOType;
 import edu.cn.hitsz_ids.agents.grpc.*;
 import io.grpc.ManagedChannel;
@@ -35,12 +36,13 @@ public class Help {
         }
     }
 
-    List<AgentsFile> listFiles(String directory) {
+    List<AgentsFile> listFiles(String directory, BridgeType type) {
         Metadata header = new Metadata();
         header.put(AgentsMetadata.TYPE, IOType.SKIP);
         return stub.withInterceptors(MetadataUtils.newAttachHeadersInterceptor(header))
                 .listFiles(ListRequest.newBuilder()
                         .setDirectory(directory)
+                        .setBridgeType(type == null ? "" : type.getName())
                         .buildPartial()).getFilesList();
     }
 

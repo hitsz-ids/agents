@@ -66,6 +66,10 @@ public class AgentsService {
         }
     }
 
+    public void registerService(ServerServiceDefinition service) {
+        definitions.add(ServerInterceptors.intercept(service, new BridgeInterceptor()));
+    }
+
     public void start() throws IOException {
         server = builder.addServices(definitions).build();
         server.start();

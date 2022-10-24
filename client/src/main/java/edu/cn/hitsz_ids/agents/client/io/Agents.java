@@ -1,5 +1,6 @@
 package edu.cn.hitsz_ids.agents.client.io;
 
+import edu.cn.hitsz_ids.agents.core.BridgeType;
 import edu.cn.hitsz_ids.agents.grpc.AgentsFile;
 import edu.cn.hitsz_ids.agents.grpc.OpenOption;
 import edu.cn.hitsz_ids.agents.core.bridge.IBridgeType;
@@ -48,8 +49,12 @@ public class Agents {
                 "", OpenOption.OP_WRITE);
     }
 
+    public static List<AgentsFile> listFiles(String directory, BridgeType type) {
+        return Help.getInstance().listFiles(directory, type);
+    }
+
     public static List<AgentsFile> listFiles(String directory) {
-        return Help.getInstance().listFiles(directory);
+        return listFiles(directory, null);
     }
 
     public static boolean delete(String uri) {

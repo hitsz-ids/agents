@@ -5,6 +5,7 @@ import edu.cn.hitsz_ids.agents.db.helper.DbHandler;
 import edu.cn.hitsz_ids.agents.db.pojo.params.CreateParams;
 import edu.cn.hitsz_ids.agents.db.pojo.returns.AgentsFileReturn;
 import edu.cn.hitsz_ids.agents.db.pojo.returns.SearchInfoReturns;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -19,15 +20,18 @@ public class AgentsFileHandler extends DbHandler<IAgentsFileMapper> {
         super(IAgentsFileMapper.class);
     }
 
-    public List<String> selectDir(String directory) {
-        return mapper.queryDir(directory);
+    public List<String> selectDir(String directory, String bridgeType) {
+        return mapper.queryDir(directory, bridgeType);
     }
 
-    public List<AgentsFileReturn> selectFilesByDirectory(String directory) {
-        var list = mapper.selectList(
-                new QueryWrapper<AgentsFileEntity>()
-                        .eq(AgentsFileTable.COLUMN_DIRECTORY
-                                , directory));
+    public List<AgentsFileReturn> selectFilesByDirectory(String directory, String bridge) {
+        QueryWrapper<AgentsFileEntity> queryWrapper = new QueryWrapper<>();
+        queryWrapper = queryWrapper.eq(AgentsFileTable.COLUMN_DIRECTORY
+                , directory);
+        if(!StringUtils.isEmpty(bridge)) {
+            queryWrapper = queryWrapper.eq(AgentsFileTable.COLUMN_BRIDGE, bridge);
+        }
+        var list = mapper.selectList(queryWrapper);
         List<AgentsFileReturn> returns = new ArrayList<>();
         for (var agentsFileEntity : list) {
             returns.add(AgentsFileReturn.builder()

@@ -32,8 +32,12 @@ public class HelpService extends HelpServiceGrpc.HelpServiceImplBase {
     public void listFiles(ListRequest request, StreamObserver<ListResponse> responseObserver) {
         String directory = request.getDirectory();
         try (AgentsFileHandler handler = new AgentsFileHandler(false)) {
-            List<String> children = handler.selectDir(directory);
-            List<AgentsFileReturn> list = handler.selectFilesByDirectory(directory);
+            String bridge = request.getBridgeType();
+            if (StringUtils.isEmpty(bridge)) {
+                bridge = null;
+            }
+            List<String> children = handler.selectDir(directory, bridge);
+            List<AgentsFileReturn> list = handler.selectFilesByDirectory(directory, bridge);
             ListResponse.Builder response = ListResponse.newBuilder();
             for (AgentsFileReturn agentsFileReturn : list) {
                 response.addFiles(AgentsFile.newBuilder()

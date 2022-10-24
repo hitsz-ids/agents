@@ -27,6 +27,9 @@
         SELECT `directory` FROM `agents_file`
         WHERE `directory` LIKE CONCAT(#{directory}, '%')
         AND NOT (`directory`=#{directory})
+        <if test="bridge != null">
+            AND `bridge` = #{bridge}
+        </if>
         GROUP BY `directory`
     </select>
 </mapper>

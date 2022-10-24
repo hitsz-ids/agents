@@ -19,5 +19,5 @@ interface IAgentsFileMapper extends BaseMapper<AgentsFileEntity> {
 
     void updateSizeById(@Param("id") Long id, @Param("size") long size);
 
-    List<String> queryDir(@Param("directory") String directory);
+    List<String> queryDir(@Param("directory") String directory, @Param("bridge") String bridge);
 }
