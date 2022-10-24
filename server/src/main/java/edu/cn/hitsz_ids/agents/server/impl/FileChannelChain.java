@@ -12,7 +12,7 @@ class FileChannelChain implements Chain {
     FileChannel channel;
 
     protected File open(String path, OpenOption... options) throws IOException {
-        File file = new File(path);
+        var file = new File(path);
         if (!file.exists()) {
             throw new IOException("File Not Found");
         }
@@ -26,9 +26,9 @@ class FileChannelChain implements Chain {
 
     protected int read(byte[] bytes, int off, int length) throws IOException {
         channel.position(off);
-        ByteBuffer byteBuffer = ByteBuffer.allocate(length);
-        int len = channel.read(byteBuffer);
-        byte[] real = byteBuffer.array();
+        var byteBuffer = ByteBuffer.allocate(length);
+        var len = channel.read(byteBuffer);
+        var real = byteBuffer.array();
         System.arraycopy(real, 0, bytes, off, len);
         return len;
     }

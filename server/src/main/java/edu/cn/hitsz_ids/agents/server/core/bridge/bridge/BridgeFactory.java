@@ -30,13 +30,13 @@ public class BridgeFactory {
 
     public Bridge<?> create(String type) throws ServerException {
         Bridge<?> bridge;
-        IBridgeType bridgeType = bridgeTypes.get(type);
-        Class<?> clazz = typed.get(bridgeType);
+        var bridgeType = bridgeTypes.get(type);
+        var clazz = typed.get(bridgeType);
         if (Objects.isNull(clazz)) {
             throw new ServerException("未找到对应的存储桥接器");
         }
         try {
-            Constructor<?> constructor = clazz.getConstructor(IBridgeType.class);
+            var constructor = clazz.getConstructor(IBridgeType.class);
             bridge = (Bridge<?>) constructor.newInstance(bridgeType);
         } catch (NoSuchMethodException | InvocationTargetException | InstantiationException |
                  IllegalAccessException e) {

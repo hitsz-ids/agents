@@ -18,12 +18,11 @@ public class OutputStream extends java.io.OutputStream {
     private final Writer writer;
     private boolean closed;
     private final Object closeLock = new Object();
-
     private AgentsFile file;
 
     private OutputStream(IBridgeType IBridgeType, String identity) throws IOException {
         channel = Connector.channel();
-        Metadata header = new Metadata();
+        var header = new Metadata();
         header.put(AgentsMetadata.TYPE, IOType.CREATE);
         header.put(AgentsMetadata.BRIDGE, IBridgeType.getName());
         header.put(AgentsMetadata.IDENTITY, identity);
@@ -33,18 +32,18 @@ public class OutputStream extends java.io.OutputStream {
 
     OutputStream(String uri, OpenOption option) throws IOException {
         channel = Connector.channel();
-        Metadata header = new Metadata();
+        var header = new Metadata();
         header.put(AgentsMetadata.TYPE, IOType.SEARCH);
         header.put(AgentsMetadata.URI, uri);
         stub = StreamGrpc.newStub(channel).withInterceptors(MetadataUtils.newAttachHeadersInterceptor(header));
         writer = new Writer();
-        StreamObserver<Request> sender = stub.output(writer);
+        var sender = stub.output(writer);
         writer.setSender(sender);
         open(option);
     }
 
     private void open(OpenOption option) throws IOException {
-        Response.Open open = writer.open(option);
+        var open = writer.open(option);
         file = open.getFile();
     }
 
@@ -54,7 +53,7 @@ public class OutputStream extends java.io.OutputStream {
                  String identity,
                  OpenOption option) throws IOException {
         this(IBridgeType, identity);
-        StreamObserver<Request> sender = stub.output(writer);
+        var sender = stub.output(writer);
         writer.setSender(sender);
         writer.create(name, directory, identity);
         open(option);

@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -30,7 +31,7 @@ public class DiskBridge extends Bridge<FileChannelChain> {
     }
 
     private Path getRealPath(String identity, String name, String directory) throws IOException {
-        Path dirPath = Paths.get(BASE_DIR + directory);
+        Path dirPath = Paths.get(BASE_DIR + File.separator + directory);
         String extension = PathUtils.extension(name);
         Path path = Paths.get(dirPath.toFile().getCanonicalPath() + File.separator + identity + extension);
         if (!Objects.equals(path.toFile().getCanonicalPath(), path.toFile().getAbsolutePath())) {
@@ -41,15 +42,9 @@ public class DiskBridge extends Bridge<FileChannelChain> {
     }
 
     @Override
-    public AgentsFile.Builder open(String identity, String name, String directory, OpenOption... options) throws IOException {
-        Path path = getRealPath(identity, name, directory);
-        File file = chain.open(path.toString(), options);
-        return AgentsFile.newBuilder()
-                .setName(file.getName())
-                .setSize(file.length())
-                .setPath(file.getPath())
-                .setDirectory(directory)
-                .setBridge(getName());
+    public void open(String identity, String name, String directory, OpenOption... options) throws IOException {
+        var path = getRealPath(identity, name, directory);
+        chain.open(path.toString(), options);
     }
 
     @Override
@@ -63,7 +58,7 @@ public class DiskBridge extends Bridge<FileChannelChain> {
     }
 
     @Override
-    public AgentsFile.Builder create(String identity,
+    public void create(String identity,
                                      String name,
                                      String directory) throws IOException {
         Path path = getRealPath(identity, name, directory);
@@ -80,16 +75,6 @@ public class DiskBridge extends Bridge<FileChannelChain> {
         }
         Files.deleteIfExists(path);
         Files.createFile(path);
-        return AgentsFile.newBuilder()
-                .setName(name)
-                .setSize(0L)
-                .setPath(path.toString())
-                .setDirectory(directory)
-                .setBridge(getName())
-                .setCreatedTime(DateFormatUtils.format(new Date(),
-                        DateFormatUtils.ISO_8601_EXTENDED_TIME_TIME_ZONE_FORMAT.getPattern()))
-                .setLastModified(DateFormatUtils.format(new Date(),
-                        DateFormatUtils.ISO_8601_EXTENDED_TIME_TIME_ZONE_FORMAT.getPattern()));
     }
 
     @Override
@@ -126,18 +111,18 @@ public class DiskBridge extends Bridge<FileChannelChain> {
 
     @Override
     public List<AgentsFile> listFiles(String directory) throws IOException {
-        try (AgentsFileHandler handler = new AgentsFileHandler(false)){
+        try (AgentsFileHandler handler = new AgentsFileHandler(false)) {
             dir(BASE_DIR + directory, handler);
         }
         return null;
     }
 
     private void dir(String directory, AgentsFileHandler handler) {
-        File file = new File(directory);
+        var file = new File(directory);
         if (!file.isDirectory()) {
             return;
         }
-        File[] files = file.listFiles();
+        var files = file.listFiles();
         if (Objects.isNull(files)) {
             return;
         }
@@ -147,7 +132,6 @@ public class DiskBridge extends Bridge<FileChannelChain> {
             if (item.isDirectory()) {
                 dir(item.getPath(), handler);
             } else {
-                handler.searchInfoByPath(file.getPath());
             }
         }
     }

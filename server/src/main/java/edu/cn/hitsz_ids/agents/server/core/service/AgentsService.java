@@ -1,10 +1,9 @@
 package edu.cn.hitsz_ids.agents.server.core.service;
 
-import com.google.rpc.Help;
+import edu.cn.hitsz_ids.agents.core.bridge.IBridgeType;
 import edu.cn.hitsz_ids.agents.server.core.bridge.bridge.Bridge;
 import edu.cn.hitsz_ids.agents.server.core.bridge.bridge.BridgeFactory;
 import edu.cn.hitsz_ids.agents.server.core.utils.Channel;
-import edu.cn.hitsz_ids.agents.core.bridge.IBridgeType;
 import io.grpc.Server;
 import io.grpc.ServerInterceptor;
 import io.grpc.ServerInterceptors;
@@ -34,15 +33,15 @@ public class AgentsService {
     private static final String TRUST_CERT_FILE_PATH = "ca.pem";
     private static final String PRIVATE_KEY_FILE_PATH = "server-pkcs8.key";
     private void initService() {
-        StreamService service = new StreamService();
-        HelpService helpService = new HelpService();
+        var service = new StreamService();
+        var helpService = new HelpService();
         definitions.add(ServerInterceptors.intercept(service, new BridgeInterceptor()));
         definitions.add(ServerInterceptors.intercept(helpService, new BridgeInterceptor()));
     }
     public AgentsService(int port) throws SSLException {
         this.listenPort = port;
         initService();
-        SslContextBuilder sslContextBuilder = getSslContextBuilder();
+        var sslContextBuilder = getSslContextBuilder();
         builder = NettyServerBuilder
                 .forPort(listenPort)
                 .permitKeepAliveWithoutCalls(true)
@@ -58,7 +57,7 @@ public class AgentsService {
     }
 
     public void registerInterceptor(ServerInterceptor interceptor) {
-        int size = definitions.size();
+        var size = definitions.size();
         ServerServiceDefinition definition;
         for (int i = 0; i < size; i++) {
             definition = definitions.get(i);

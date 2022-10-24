@@ -1,9 +1,12 @@
 package edu.cn.hitsz_ids.agents.client.io;
 
+import edu.cn.hitsz_ids.agents.grpc.AgentsFile;
 import edu.cn.hitsz_ids.agents.grpc.OpenOption;
 import edu.cn.hitsz_ids.agents.core.bridge.IBridgeType;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Agents {
     public static InputStream open(String uri) throws IOException {
@@ -43,5 +46,13 @@ public class Agents {
         return new OutputStream(IBridgeType,
                 name,
                 "", OpenOption.OP_WRITE);
+    }
+
+    public static List<AgentsFile> listFiles(String directory) {
+        return Help.getInstance().listFiles(directory);
+    }
+
+    public static boolean delete(String uri) {
+        return Help.getInstance().delete(uri);
     }
 }

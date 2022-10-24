@@ -9,8 +9,8 @@ import edu.cn.hitsz_ids.agents.core.BridgeType;
 import java.io.IOException;
 public class Application {
     public static void main(String[] args) throws IOException, InterruptedException {
-        AgentsService service = new AgentsService(10000);
-        DbConfig dbConfig = new DbConfig();
+        var service = new AgentsService(10000);
+        var dbConfig = new DbConfig();
         dbConfig.setDatabase("agents-db");
         dbConfig.setU("root");
         dbConfig.setP("123");

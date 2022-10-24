@@ -20,7 +20,7 @@ public class DruidHelper implements DataSourceFactory {
 
     @Override
     public DataSource getDataSource() {
-        DruidDataSource dataSource = new DruidDataSource();
+        var dataSource = new DruidDataSource();
         dataSource.setUrl(properties.getProperty("url"));
         dataSource.setUsername(properties.getProperty("u"));
         dataSource.setPassword(properties.getProperty("p"));

@@ -18,7 +18,7 @@ public abstract class Bridge<C extends Chain> {
 
     protected abstract C createChain();
 
-    public abstract AgentsFile.Builder open(String identity,
+    public abstract void open(String identity,
                                     String name,
                                     String directory,
                                     OpenOption... options) throws IOException;
@@ -27,7 +27,7 @@ public abstract class Bridge<C extends Chain> {
 
     public abstract int write(byte[] bytes) throws IOException;
 
-    public abstract AgentsFile.Builder create(String identity,
+    public abstract void create(String identity,
                                       String name,
                                       String directory) throws IOException;
 

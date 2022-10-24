@@ -10,12 +10,12 @@ import java.io.IOException;
 public class Reader extends Observer {
     public int read(byte[] bytes, int off, int length) throws IOException {
         isException();
-        ReadCase readCase = new ReadCase(
+        var readCase = new ReadCase(
                 Request.Read.newBuilder()
                         .setOff(off)
                         .setLen(length)
                         .build());
-        Response.Read read = caseManager.await(readCase);
+        var read = caseManager.await(readCase);
         isException();
         if (read != null) {
             int len = read.getLen();

@@ -11,15 +11,9 @@ public class OptionsUtils {
             openOptions = new StandardOpenOption[options.length];
             for (int i = 0; i < options.length; i++) {
                 switch (options[i]) {
-                    case OP_READ:
-                        openOptions[i] = StandardOpenOption.READ;
-                        break;
-                    case OP_WRITE:
-                        openOptions[i] = StandardOpenOption.WRITE;
-                        break;
-                    case OP_APPEND:
-                        openOptions[i] = StandardOpenOption.APPEND;
-                        break;
+                    case OP_READ -> openOptions[i] = StandardOpenOption.READ;
+                    case OP_WRITE -> openOptions[i] = StandardOpenOption.WRITE;
+                    case OP_APPEND -> openOptions[i] = StandardOpenOption.APPEND;
                 }
             }
         } else {

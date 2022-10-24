@@ -11,16 +11,22 @@
     </select>
 
     <select id="queryPathInfo"
-            resultType="edu.cn.hitsz_ids.agents.db.pojo.returns.SearchPathReturns">
-        SELECT `id`, `name`, `directory`, `bridge`, `size`
+            resultType="edu.cn.hitsz_ids.agents.db.pojo.returns.SearchInfoReturns">
+        SELECT
+        `id`,
+        `name`,
+        `directory`,
+        `bridge`,
+        `size`,
+        `created_time` as createdTime,
+        `last_modified` as lastModified
         FROM `agents_file`
         WHERE `identity` = #{identity}
     </select>
-
-    <select id="queryPathInfoByPath"
-            resultType="edu.cn.hitsz_ids.agents.db.pojo.returns.SearchPathReturns">
-        SELECT `identity`, `name`, `directory`, `bridge`, `size`
-        FROM `agents_file`
-        WHERE `path` = #{path}
+    <select id="queryDir" resultType="java.lang.String">
+        SELECT `directory` FROM `agents_file`
+        WHERE `directory` LIKE CONCAT(#{directory}, '%')
+        AND NOT (`directory`=#{directory})
+        GROUP BY `directory`
     </select>
 </mapper>

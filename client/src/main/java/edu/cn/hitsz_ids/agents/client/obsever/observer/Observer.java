@@ -31,16 +31,16 @@ public abstract class Observer implements StreamObserver<Response> {
 
     public final Response.Open open(OpenOption option) throws IOException {
         isException();
-        Request.Open.Builder builder = Request.Open.newBuilder();
+        var builder = Request.Open.newBuilder();
         builder.setOption(option);
-        Response.Open open = caseManager.await(new OpenCase(builder.build()));
+        var open = caseManager.await(new OpenCase(builder.build()));
         isException();
         return open;
     }
 
     public long position(long index) throws IOException {
         isException();
-        Response.Position position = caseManager.await(new PositionCase(
+        var position = caseManager.await(new PositionCase(
                 Request.Position.newBuilder()
                         .setIndex(index).build()));
         return position.getIndex();
@@ -59,26 +59,21 @@ public abstract class Observer implements StreamObserver<Response> {
         Request req;
         try {
             switch (res.getDataCase()) {
-                case OPEN:
+                case OPEN -> {
                     caseManager.single(res.getId(), res.getOpen());
-                    return;
-                case CLOSE:
+                }
+                case CLOSE -> {
                     caseManager.single(res.getId(), res.getClose());
-                    return;
-                case POSITION:
-                    caseManager.single(res.getId(), res.getPosition());
-                    break;
-                case READ:
-                    caseManager.single(res.getId(), res.getRead());
-                    break;
-                case DATA_NOT_SET:
-                    throw new IOException("接收的数据类型不正确");
-                default:
+                }
+                case POSITION -> caseManager.single(res.getId(), res.getPosition());
+                case READ -> caseManager.single(res.getId(), res.getRead());
+                case DATA_NOT_SET -> throw new IOException("接收的数据类型不正确");
+                default -> {
                     req = this.response(res);
                     if (req != null) {
                         sender.onNext(req);
                     }
-                    break;
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -96,7 +91,7 @@ public abstract class Observer implements StreamObserver<Response> {
         synchronized (errorLock) {
             try {
                 ServerException exception;
-                Metadata metadata = ((StatusRuntimeException) throwable).getTrailers();
+                var metadata = ((StatusRuntimeException) throwable).getTrailers();
                 if (metadata != null) {
                     byte[] bytes = metadata.get(AgentsMetadata.STACK_TRACE);
                     byte[] msgBytes = metadata.get(AgentsMetadata.MESSAGE);
@@ -136,8 +131,8 @@ public abstract class Observer implements StreamObserver<Response> {
                 return;
             }
             exception = e;
-            byte[] bytes = ExceptionUtils.toBytes(e);
-            String message = (e.getClass().getName() + ":" + e.getMessage());
+            var bytes = ExceptionUtils.toBytes(e);
+            var message = (e.getClass().getName() + ":" + e.getMessage());
             sender.onNext(Request.newBuilder()
                     .setException(
                             Exception.newBuilder()

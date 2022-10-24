@@ -10,6 +10,7 @@ import io.grpc.netty.shaded.io.netty.handler.ssl.SslContextBuilder;
 import javax.net.ssl.SSLException;
 import java.io.File;
 import java.net.URL;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 public class Connector {
@@ -25,17 +26,17 @@ public class Connector {
                 .build();
     }
     private static SslContext buildSslContext() throws SSLException {
-        SslContextBuilder builder = GrpcSslContexts.forClient();
-        URL cert = Connector.class.getClassLoader().getResource("client.pem");
-        if (cert == null) {
+        var builder = GrpcSslContexts.forClient();
+        var cert = Connector.class.getClassLoader().getResource("client.pem");
+        if (Objects.isNull(cert)) {
             return null;
         }
-        URL key = Connector.class.getClassLoader().getResource("client-pkcs8.key");
-        if (key == null) {
+        var key = Connector.class.getClassLoader().getResource("client-pkcs8.key");
+        if (Objects.isNull(key)) {
             return null;
         }
-        URL ca =Connector.class.getClassLoader().getResource( "ca.pem");
-        if (ca == null) {
+        var ca =Connector.class.getClassLoader().getResource( "ca.pem");
+        if (Objects.isNull(ca)) {
             return null;
         }
         builder.trustManager(new File(ca.getFile()));

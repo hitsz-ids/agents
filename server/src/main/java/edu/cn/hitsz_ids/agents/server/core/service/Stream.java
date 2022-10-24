@@ -4,16 +4,20 @@ import edu.cn.hitsz_ids.agents.core.exception.ClientException;
 import edu.cn.hitsz_ids.agents.core.exception.ExceptionUtils;
 import edu.cn.hitsz_ids.agents.core.exception.ServerException;
 import edu.cn.hitsz_ids.agents.db.mapper.AgentsFileHandler;
-import edu.cn.hitsz_ids.agents.db.pojo.returns.SearchPathReturns;
+import edu.cn.hitsz_ids.agents.db.pojo.returns.SearchInfoReturns;
 import edu.cn.hitsz_ids.agents.grpc.Exception;
 import edu.cn.hitsz_ids.agents.grpc.*;
 import edu.cn.hitsz_ids.agents.server.core.bridge.bridge.Bridge;
+import edu.cn.hitsz_ids.agents.server.core.utils.PathUtils;
 import io.grpc.Metadata;
 import io.grpc.Status;
 import io.grpc.stub.StreamObserver;
+import org.apache.commons.lang3.StringUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.Objects;
 
 abstract class Stream implements StreamObserver<Request> {
@@ -28,7 +32,6 @@ abstract class Stream implements StreamObserver<Request> {
     protected final Object lock = new Object();
     protected Long primaryKey;
     protected long size;
-
     protected long newPosition;
     protected OpenOption option;
 
@@ -85,17 +88,33 @@ abstract class Stream implements StreamObserver<Request> {
                 throw new IOException("文件已经打开");
             }
             isClosed();
-            try (AgentsFileHandler handler = new AgentsFileHandler()) {
-                SearchPathReturns searchPathReturns = handler.searchInfo(identity);
-                primaryKey = searchPathReturns.getId();
-                if (!Objects.equals(searchPathReturns.getBridge(), scheme)) {
+            try (var handler = new AgentsFileHandler()) {
+                SearchInfoReturns searchInfoReturns = handler.searchInfoByIdentity(identity);
+                primaryKey = searchInfoReturns.getId();
+                if (!Objects.equals(searchInfoReturns.getBridge(), scheme)) {
                     throw new ServerException("当前文件的存储位置不匹配");
                 }
                 option = open.getOption();
-                AgentsFile.Builder file = bridge.open(
+                var realName = identity + PathUtils.extension(searchInfoReturns.getName());
+                var relativePath = realName;
+                var directory = searchInfoReturns.getDirectory();
+                if (!StringUtils.isEmpty(directory)) {
+                    relativePath = Path.of(directory + File.separator + realName).toString();
+                }
+                var file = AgentsFile.newBuilder()
+                        .setUri(getUri())
+                        .setPath(relativePath)
+                        .setName(searchInfoReturns.getName())
+                        .setCreatedTime(searchInfoReturns.getCreatedTime().getTime())
+                        .setLastModified(searchInfoReturns.getLastModified().getTime())
+                        .setDirectory(searchInfoReturns.getDirectory())
+                        .setBridge(searchInfoReturns.getBridge())
+                        .setSize(searchInfoReturns.getSize())
+                        .build();
+                bridge.open(
                         identity,
-                        searchPathReturns.getName(),
-                        searchPathReturns.getDirectory(),
+                        searchInfoReturns.getName(),
+                        searchInfoReturns.getDirectory(),
                         option);
                 size = file.getSize();
                 opened = true;

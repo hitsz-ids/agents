@@ -1,19 +1,18 @@
-package edu.cn.hitsz_ids.agents.db.pojo.params;
+package edu.cn.hitsz_ids.agents.db.pojo.returns;
 
 import lombok.Builder;
 import lombok.Data;
 
 import java.util.Date;
 
-@Data
 @Builder
-public class CreateParams {
+@Data
+public class AgentsFileReturn {
     private String identity;
     private String name;
     private Long size;
-    private int status;
-    private String path;
-    private String directory;
+    private Date createdTime;
     private Date lastModified;
     private String bridge;
+    private String isDirectory;
 }

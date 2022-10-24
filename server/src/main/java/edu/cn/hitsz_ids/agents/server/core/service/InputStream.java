@@ -24,10 +24,10 @@ class InputStream extends Stream {
     }
 
     protected Response.Builder read(Request.Read read) throws IOException {
-        int len = read.getLen();
-        int off = read.getOff();
-        byte[] bytes = new byte[len];
-        int readLength = bridge.read(bytes, off, len);
+        var len = read.getLen();
+        var off = read.getOff();
+        var bytes = new byte[len];
+        var readLength = bridge.read(bytes, off, len);
         return Response.newBuilder().setRead(Response.Read.newBuilder()
                 .setBytes(readLength != -1 ?
                         ByteString.copyFrom(bytes, 0, len)

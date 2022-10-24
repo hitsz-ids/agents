@@ -1,15 +1,17 @@
 package edu.cn.hitsz_ids.agents.server.core.service;
 
-import com.google.protobuf.ByteString;
 import edu.cn.hitsz_ids.agents.db.mapper.AgentsFileHandler;
 import edu.cn.hitsz_ids.agents.db.pojo.params.CreateParams;
-import edu.cn.hitsz_ids.agents.grpc.AgentsFile;
 import edu.cn.hitsz_ids.agents.grpc.Request;
 import edu.cn.hitsz_ids.agents.grpc.Response;
 import edu.cn.hitsz_ids.agents.server.core.bridge.bridge.Bridge;
+import edu.cn.hitsz_ids.agents.server.core.utils.PathUtils;
 import io.grpc.stub.StreamObserver;
+import org.apache.commons.lang3.StringUtils;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 
 class OutputStream extends Stream {
     public OutputStream(StreamObserver<Response> pusher, Bridge<?> bridge) {
@@ -26,15 +28,21 @@ class OutputStream extends Stream {
     }
 
     protected Response.Builder create(Request.Create create) throws IOException {
-        AgentsFile.Builder file = null;
-        AgentsFileHandler handler = new AgentsFileHandler(false);
+        var handler = new AgentsFileHandler(false);
         try (handler) {
-            file = bridge.create(create.getIdentity(),
+            bridge.create(create.getIdentity(),
                     create.getName(),
                     create.getDirectory());
+            var name = identity + PathUtils.extension(create.getName());
+            var relativePath = name;
+            var directory = create.getDirectory();
+            if (!StringUtils.isEmpty(directory)) {
+                relativePath = Path.of(directory + File.separator + name).toString();
+            }
             handler.create(CreateParams.builder()
                     .size(0L)
                     .bridge(scheme)
+                    .path(relativePath)
                     .directory(create.getDirectory())
                     .identity(create.getIdentity())
                     .name(create.getName())
@@ -42,9 +50,7 @@ class OutputStream extends Stream {
             handler.commit();
         } catch (Exception e) {
             handler.rollback();
-            if (file != null) {
-                bridge.delete(file.build());
-            }
+            bridge.delete(identity, create.getName(), create.getDirectory());
             throw e;
         }
         return Response.newBuilder().setCreate(
@@ -57,10 +63,10 @@ class OutputStream extends Stream {
         synchronized (lock) {
             isOpened();
             isClosed();
-            ByteString byteString = write.getBytes();
-            int len = bridge.write(byteString.toByteArray());
+            var byteString = write.getBytes();
+            var len = bridge.write(byteString.toByteArray());
             updateSize(len);
-            AgentsFileHandler fileHandler = new AgentsFileHandler(false);
+            var fileHandler = new AgentsFileHandler(false);
             try (fileHandler) {
                 fileHandler.updateSizeById(primaryKey, size);
                 fileHandler.commit();

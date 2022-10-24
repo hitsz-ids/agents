@@ -22,14 +22,13 @@ public class InputStream extends java.io.InputStream {
 
     public InputStream(String path) throws IOException {
         channel = Connector.channel();
-        Metadata header = new Metadata();
+        var header = new Metadata();
         header.put(AgentsMetadata.TYPE, IOType.SEARCH);
         header.put(AgentsMetadata.URI, path);
-        header.put(AgentsMetadata.BRIDGE, BridgeType.DISK.getName());
-        StreamGrpc.StreamStub stub = StreamGrpc.newStub(channel)
+        var stub = StreamGrpc.newStub(channel)
                 .withInterceptors(MetadataUtils.newAttachHeadersInterceptor(header));
         reader = new Reader();
-        StreamObserver<Request> sender = stub.input(reader);
+        var sender = stub.input(reader);
         reader.setSender(sender);
         reader.open(OpenOption.OP_READ);
     }

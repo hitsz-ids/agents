@@ -11,7 +11,7 @@ import java.io.IOException;
 public class Writer extends Observer {
     @Override
     protected Request response(Response res) throws IOException {
-        Object data;
+        var data = new Object();
         switch (res.getDataCase()) {
             case WRITE:
                 data = res.getWrite();

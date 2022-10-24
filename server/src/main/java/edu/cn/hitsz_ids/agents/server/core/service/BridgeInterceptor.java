@@ -10,21 +10,25 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Objects;
 
-import static edu.cn.hitsz_ids.agents.core.bridge.IOType.CREATE;
-import static edu.cn.hitsz_ids.agents.core.bridge.IOType.SEARCH;
+import static edu.cn.hitsz_ids.agents.core.bridge.IOType.*;
 
 class BridgeInterceptor implements ServerInterceptor {
     @Override
     public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> serverCall,
                                                                  Metadata metadata,
                                                                  ServerCallHandler<ReqT, RespT> serverCallHandler) {
-        String type = AgentsMetadata.getType(metadata);
-        boolean goon = false;
-        String name = null;
-        String identity = null;
+        var type = AgentsMetadata.getType(metadata);
+        var goon = false;
+        var name = "";
+        var identity = "";
+        if (Objects.equals(type, SKIP)) {
+            return serverCallHandler.startCall(
+                    new ForwardingServerCall.SimpleForwardingServerCall<>(serverCall) {
+                    }, metadata);
+        }
         if (Objects.equals(type, SEARCH)) {
             // 通过路径查询文件的实际存储位置来获取bridge的类型
-            String path = AgentsMetadata.getPath(metadata);
+            var path = AgentsMetadata.getPath(metadata);
             try {
                 URI uri = new URI(path);
                 name = uri.getScheme();

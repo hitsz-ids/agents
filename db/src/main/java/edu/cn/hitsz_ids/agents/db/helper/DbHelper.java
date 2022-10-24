@@ -23,7 +23,7 @@ class DbHelper {
     }
 
     public void initDbConfig(DbConfig config) throws IOException {
-        Properties properties = new Properties();
+        var properties = new Properties();
         properties.put("jdbc.driver", config.getDriver());
         properties.put("jdbc.url", String.format(TEMPLATE,
                 config.getHost(),
@@ -31,7 +31,7 @@ class DbHelper {
                 config.getDatabase()));
         properties.put("jdbc.username", config.getU());
         properties.put("jdbc.password", config.getP());
-        String resource = "db-config.xml";
+        var resource = "db-config.xml";
         try (InputStream inputStream = Resources.getResourceAsStream(resource)) {
             sqlSessionFactory = new MybatisSqlSessionFactoryBuilder().build(inputStream, properties);
         }

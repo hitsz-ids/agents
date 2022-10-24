@@ -16,7 +16,7 @@ public class CaseManager {
 
     public <T extends DataCase<R, D>, R, D> D await(T t) throws IOException {
         try {
-            CaseMessage message = new CaseMessage(t);
+            var message = new CaseMessage(t);
             list.add(message);
             return t.await(observer, message.getCaseId());
         } catch (IOException e) {
@@ -26,7 +26,7 @@ public class CaseManager {
     }
 
     private CaseMessage getMessage(String id) {
-        int index = 0;
+        var index = 0;
         CaseMessage caseMessage = null;
         for (CaseMessage message : list) {
             if (Objects.equals(message.getCaseId(), id)) {
@@ -42,7 +42,7 @@ public class CaseManager {
     }
 
     public void single(String id, Object data) {
-        CaseMessage message = getMessage(id);
+        var message = getMessage(id);
         if (Objects.isNull(message)) {
             return;
         }
@@ -50,7 +50,7 @@ public class CaseManager {
     }
 
     public void singleAll() {
-        for (CaseMessage message : list) {
+        for (var message : list) {
             message.getDataCase().single(null);
         }
     }

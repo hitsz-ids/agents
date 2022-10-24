@@ -10,10 +10,10 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public abstract class DataCase<P, R> {
     protected final Request.Builder builder = Request.newBuilder();
-    ReentrantLock lock = new ReentrantLock();
-    Condition condition = lock.newCondition();
+    private final ReentrantLock lock = new ReentrantLock();
+    private final Condition condition = lock.newCondition();
     R data;
-    boolean doing = false;
+    private boolean doing = false;
     public DataCase(P params) {
         assemble(builder, params);
     }
@@ -24,7 +24,7 @@ public abstract class DataCase<P, R> {
         try {
             observer.send(builder.setId(id).build());
             doing = true;
-            boolean pass;
+            var pass = false;
             while (doing) {
                 pass = condition.await(60, TimeUnit.SECONDS);
                 if (!pass) {

@@ -26,7 +26,7 @@ public class CaseMessage {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        CaseMessage message = (CaseMessage) o;
+        var message = (CaseMessage) o;
         return caseId.equals(message.caseId);
     }
 
