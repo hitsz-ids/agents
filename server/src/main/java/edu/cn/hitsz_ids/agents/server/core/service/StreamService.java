@@ -5,7 +5,7 @@ import edu.cn.hitsz_ids.agents.grpc.Request;
 import edu.cn.hitsz_ids.agents.grpc.Response;
 import edu.cn.hitsz_ids.agents.grpc.StreamGrpc;
 
-public class StreamService extends StreamGrpc.StreamImplBase {
+class StreamService extends StreamGrpc.StreamImplBase {
     @Override
     public StreamObserver<Request> input(StreamObserver<Response> responseObserver) {
         return new InputStream(responseObserver, TemporaryVariable.getInstance().getBridge());

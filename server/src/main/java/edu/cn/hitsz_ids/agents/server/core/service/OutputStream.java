@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 class OutputStream extends Stream {
-    public OutputStream(StreamObserver<Response> pusher, Bridge<?> bridge) {
+    OutputStream(StreamObserver<Response> pusher, Bridge<?> bridge) {
         super(pusher, bridge);
     }
 

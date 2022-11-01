@@ -9,9 +9,14 @@ public class DbHandler<T extends BaseMapper<?>> implements AutoCloseable {
     public DbHandler(Class<T> clazz) {
         this(true, clazz);
     }
+
     public DbHandler(boolean commit, Class<T> clazz) {
         dbSession = Db.getInstance().open(commit);
-        mapper = dbSession.getMapper(clazz);
+        try {
+            mapper = dbSession.getMapper(clazz);
+        } finally {
+            dbSession.close();
+        }
     }
 
     @Override

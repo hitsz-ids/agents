@@ -16,7 +16,7 @@ public class Help {
     HelpServiceGrpc.HelpServiceBlockingStub stub;
     private volatile static Help instance;
 
-    public static Help getInstance() {
+    static Help getInstance() {
         if (instance == null) {
             synchronized (Help.class) {
                 if (instance == null) {

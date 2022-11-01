@@ -66,7 +66,7 @@ public class HelpService extends HelpServiceGrpc.HelpServiceImplBase {
         Bridge<?> bridge = TemporaryVariable.getInstance().getBridge();
         String identity = TemporaryVariable.getInstance().getIdentity();
 
-        try (AgentsFileHandler handler = new AgentsFileHandler(false);) {
+        try (AgentsFileHandler handler = new AgentsFileHandler(false)) {
             SearchInfoReturns returns = handler.searchInfoByIdentity(identity);
             boolean success = bridge.delete(identity, returns.getName(), returns.getDirectory());
             if (success) {

@@ -25,7 +25,7 @@ import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class AgentsService {
-    private final int listenPort;
+    private final int port;
     private final List<ServerServiceDefinition> definitions = new ArrayList<>();
     private Server server;
     private final NettyServerBuilder builder;
@@ -39,11 +39,11 @@ public class AgentsService {
         definitions.add(ServerInterceptors.intercept(helpService, new BridgeInterceptor()));
     }
     public AgentsService(int port) throws SSLException {
-        this.listenPort = port;
+        this.port = port;
         initService();
         var sslContextBuilder = getSslContextBuilder();
         builder = NettyServerBuilder
-                .forPort(listenPort)
+                .forPort(this.port)
                 .permitKeepAliveWithoutCalls(true)
                 .permitKeepAliveTime(5, TimeUnit.SECONDS)
                 .maxConnectionIdle(10L, TimeUnit.SECONDS)
@@ -73,7 +73,7 @@ public class AgentsService {
     public void start() throws IOException {
         server = builder.addServices(definitions).build();
         server.start();
-        log.info("服务已经启动，监听端口为{}", listenPort);
+        log.info("服务已经启动，监听端口为{}", port);
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {

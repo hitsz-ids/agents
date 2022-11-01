@@ -1,12 +1,11 @@
 package edu.cn.hitsz_ids.agents.client.io;
 
 import edu.cn.hitsz_ids.agents.core.BridgeType;
+import edu.cn.hitsz_ids.agents.core.bridge.IBridgeType;
 import edu.cn.hitsz_ids.agents.grpc.AgentsFile;
 import edu.cn.hitsz_ids.agents.grpc.OpenOption;
-import edu.cn.hitsz_ids.agents.core.bridge.IBridgeType;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class Agents {

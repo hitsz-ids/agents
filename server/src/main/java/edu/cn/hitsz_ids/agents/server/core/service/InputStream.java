@@ -9,18 +9,17 @@ import edu.cn.hitsz_ids.agents.server.core.bridge.bridge.Bridge;
 import java.io.IOException;
 
 class InputStream extends Stream {
-    public InputStream(StreamObserver<Response> pusher, Bridge<?> bridge) {
+    InputStream(StreamObserver<Response> pusher, Bridge<?> bridge) {
         super(pusher, bridge);
     }
 
     @Override
     protected Response.Builder request(Request request) throws Exception {
-        Response.Builder response;
+        Response.Builder response = null;
         if (request.getDataCase() == Request.DataCase.READ) {
             response = read(request.getRead());
-            return response;
         }
-        return null;
+        return response;
     }
 
     protected Response.Builder read(Request.Read read) throws IOException {
